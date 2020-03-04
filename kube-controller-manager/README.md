@@ -2,6 +2,8 @@
 
 Note: bidirectional file sync of the OpenShift source tree via syncthing is not yet supported for this component because the tree is too big to make work reliably without a lot of extra steps I'm not ready to publish. For now it's easier to just develop remotely inside the persistent volume and frequently push your changes elsewhere if you're paranoid.
 
+![Debugger in action](screenshot-debugger.png)
+
 ## Getting started
 
 The kube-controller-manager (KCM) hosts, among other things, the deployment and persistent volume controllers, which presents some unique bootstrapping challenges when trying to replace it with an in-cluster development environment. Additionally, it's deployed with host networking and host mounts, and so colocation of replicas is difficult. These properties explain the weird gymnastics below where the KCM is scale/enabled/disabled. Sometimes when developing it's necessary to bring the built-in KCM back to life. There are support scripts to help.
