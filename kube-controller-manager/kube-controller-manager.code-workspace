@@ -1,0 +1,70 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/go/src/github.com/openshift/origin"
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.Go"
+		]
+	},
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"go.useLanguageServer": true,
+		"[go]": {
+			"editor.snippetSuggestions": "none",
+			"editor.formatOnSave": true,
+			"editor.codeActionsOnSave": {
+				"source.organizeImports": true
+			}
+		},
+		"gopls": {
+			"usePlaceholders": true,
+			"completionDocumentation": true
+		},
+		"go.goroot": "/usr/local/go",
+		"go.gopath": "/go",
+		"go.toolsEnvVars": {
+			"GO111MODULE": "off",
+			"GOROOT": "/usr/local/go"
+		},
+		"go.delveConfig": {
+			"dlvLoadConfig": {
+				"followPointers": true,
+				"maxVariableRecurse": 1,
+				"maxStringLen": 1024,
+				"maxArrayValues": 64,
+				"maxStructFields": -1
+			},
+			"apiVersion": 2,
+			"showGlobalVariables": true
+		}
+	},
+	"launch": {
+		"configurations": [
+			{
+				"name": "kube-controller-manager",
+				"type": "go",
+				"request": "launch",
+				"mode": "auto",
+				"program": "${env:GOPATH}/src/github.com/openshift/origin/vendor/k8s.io/kubernetes/cmd/kube-controller-manager",
+				"args": [
+					"--openshift-config=/etc/kubernetes/static-pod-resources/configmaps/config/config.yaml",
+					"--kubeconfig=/etc/kubernetes/static-pod-resources/configmaps/controller-manager-kubeconfig/kubeconfig",
+					"--authentication-kubeconfig=/etc/kubernetes/static-pod-resources/configmaps/controller-manager-kubeconfig/kubeconfig",
+					"--authorization-kubeconfig=/etc/kubernetes/static-pod-resources/configmaps/controller-manager-kubeconfig/kubeconfig",
+					"--client-ca-file=/etc/kubernetes/static-pod-certs/configmaps/client-ca/ca-bundle.crt",
+					"--requestheader-client-ca-file=/etc/kubernetes/static-pod-certs/configmaps/aggregator-client-ca/ca-bundle.crt",
+					"-v=2",
+					"--tls-cert-file=/etc/kubernetes/static-pod-resources/secrets/serving-cert/tls.crt",
+					"--tls-private-key-file=/etc/kubernetes/static-pod-resources/secrets/serving-cert/tls.key",
+				]
+			}
+		],
+		"compounds": []
+	}
+}

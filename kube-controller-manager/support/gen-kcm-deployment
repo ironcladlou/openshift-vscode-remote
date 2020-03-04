@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require 'json'
+
+deployment = JSON.load(%q(
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "kube-controller-manager",
+    "namespace": "openshift-kube-controller-manager"
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "kube-controller-manager",
+        "dev": "true"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "kube-controller-manager",
+          "dev": "true"
+        }
+      },
+      "spec": {
+        "nodeSelector": {
+          "node-role.kubernetes.io/master": ""
+        },
+        "tolerations": [
+          {
+            "operator": "Exists"
+          }
+        ],
+        "affinity": {
+          "podAntiAffinity": {
+            "requiredDuringSchedulingIgnoredDuringExecution": [
+              {
+                "topologyKey": "kubernetes.io/hostname",
+                "labelSelector": {
+                  "matchExpressions": [
+                    {
+                      "key": "app",
+                      "operator": "In",
+                      "values": [
+                        "kube-controller-manager"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+))
+
+
+pod_spec = JSON.load(`oc get -n openshift-kube-controller-manager pods -o json | jq -r '.items[] | select(.metadata.name | startswith("kube-controller-manager")) | .spec'`)
+
+pod_spec["containers"].each do |c|
+  c["name"] ="kube-controller-manager" if c["name"] =~ /kube-controller-manager-\d/
+end
+
+pod_spec.delete("nodeName")
+deployment["spec"]["template"]["spec"].merge!(pod_spec)
+
+
+puts JSON.pretty_generate(deployment)

@@ -1,0 +1,11 @@
+namespace: openshift-kube-controller-manager
+name: kube-controller-manager
+container: kube-controller-manager
+image: golang:1.13.8
+command: ["bash"]
+sshServerPort: 2222
+volumes:
+  - /root/.vscode-server
+  - /go
+  - /root/.cache
+  - /root/.config

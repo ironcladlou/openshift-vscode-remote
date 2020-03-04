@@ -1,0 +1,28 @@
+#!/bin/bash
+
+command="$1"
+
+function disable_kcm_operator {
+  oc scale --replicas 0 -n openshift-cluster-version deployments/cluster-version-operator
+  oc scale --replicas 0 -n openshift-kube-controller-manager-operator deployments/kube-controller-manager-operator
+}
+
+function disable_kcm {
+  oc get nodes -l node-role.kubernetes.io/master -o json | jq -r '.items[] | .metadata.name' | while read -r name; do oc debug nodes/$name -- chroot /host mv /etc/kubernetes/manifests/kube-controller-manager-pod.yaml /etc/kubernetes; done
+}
+
+if [ "$command" == "enable" ]; then
+  # turn them all off
+  disable_kcm_operator
+  disable_kcm
+
+  # turn one back on
+  oc get nodes -l node-role.kubernetes.io/master -o json | jq -r '.items[] | .metadata.name' | head -1 | while read -r name; do oc debug nodes/$name -- chroot /host mv /etc/kubernetes/kube-controller-manager-pod.yaml /etc/kubernetes/manifests; done
+elif [ "$command" == "disable" ]; then
+  # turn them all off
+  disable_kcm_operator
+  disable_kcm
+else
+  echo "usage: kcmctl [enable|disable]"
+  exit 1
+fi
